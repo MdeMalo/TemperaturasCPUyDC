@@ -3,6 +3,7 @@ import csv
 import time
 import shutil
 import os
+import sys
 
 def bus_en_txt(nombre, word):
     temperaturas = []
@@ -46,17 +47,20 @@ def guardar_en_csv(temperaturas, uso_disco, archivo):
     if len(lines) > 100:
         with open(archivo, mode='w', newline='', encoding='utf-8') as file:
             file.writelines(lines[-100:])
-            
-os.system('sensors > /home/jose-malo-77/Escritorio/Programas/temp.txt')
-temperaturas = bus_en_txt("/home/jose-malo-77/Escritorio/Programas/temp.txt", "Core")
+
+archivo_temp = "/home/jose-malo-77/Escritorio/Programas/temp.txt"
 archivo_csv = "/home/jose-malo-77/Escritorio/Programas/datos_temperaturas.csv"
-uso_disco = obtener_espacio_disco()
-guardar_en_csv(temperaturas, uso_disco, archivo_csv)
-plt.ion()
-fig, ax1 = plt.subplots(figsize=(10, 6))
-ax2 = ax1.twinx()
 
 while True:
+    os.system(f'sensors > {archivo_temp}')
+    temperaturas = bus_en_txt(archivo_temp, "Core")
+    uso_disco = obtener_espacio_disco()
+    guardar_en_csv(temperaturas, uso_disco, archivo_csv)
+    
+    plt.ion()
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    ax2 = ax1.twinx()
+
     registros = leer_datos_csv(archivo_csv)
     if not registros:
         print("Esperando datos en el CSV...")
@@ -91,3 +95,7 @@ while True:
     fig.tight_layout()
     plt.draw()
     plt.pause(2)
+    
+    print("Reiniciando en 10 segundos...")
+    time.sleep(10)
+    os.execv(sys.executable, [sys.executable] + sys.argv)
