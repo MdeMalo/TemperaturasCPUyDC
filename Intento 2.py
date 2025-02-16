@@ -3,7 +3,6 @@ import csv
 import time
 import shutil
 import os
-import sys
 
 def bus_en_txt(nombre, word):
     temperaturas = []
@@ -40,26 +39,26 @@ def guardar_en_csv(temperaturas, uso_disco, archivo):
     with open(archivo, mode='a', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow([uso_disco] + temperaturas)
-    
+
     with open(archivo, mode='r', encoding='utf-8') as file:
         lines = file.readlines()
 
-    if len(lines) > 100:
+    if len(lines) > 60:
         with open(archivo, mode='w', newline='', encoding='utf-8') as file:
-            file.writelines(lines[-100:])
+            file.writelines(lines[-60:])
 
 archivo_temp = "/home/jose-malo-77/Escritorio/Programas/temp.txt"
 archivo_csv = "/home/jose-malo-77/Escritorio/Programas/datos_temperaturas.csv"
+
+plt.ion()
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
 
 while True:
     os.system(f'sensors > {archivo_temp}')
     temperaturas = bus_en_txt(archivo_temp, "Core")
     uso_disco = obtener_espacio_disco()
     guardar_en_csv(temperaturas, uso_disco, archivo_csv)
-    
-    plt.ion()
-    fig, ax1 = plt.subplots(figsize=(10, 6))
-    ax2 = ax1.twinx()
 
     registros = leer_datos_csv(archivo_csv)
     if not registros:
@@ -75,8 +74,8 @@ while True:
             series_temperaturas[i].append(temps[i])
     x = list(range(1, len(registros) + 1))
 
-    ax1.clear()
-    ax2.clear()
+    ax1.cla()
+    ax2.cla()
 
     for i in range(num_nucleos):
         ax1.plot(x, series_temperaturas[i], marker='o', label=f'Núcleo {i+1}')
@@ -92,10 +91,6 @@ while True:
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
 
-    fig.tight_layout()
-    plt.draw()
-    plt.pause(2)
-    
-    print("Reiniciando en 10 segundos...")
-    time.sleep(10)
-    os.execv(sys.executable, [sys.executable] + sys.argv)
+    # Forzar actualización sin pausar
+    fig.canvas.flush_events()  
+    time.sleep(2)
