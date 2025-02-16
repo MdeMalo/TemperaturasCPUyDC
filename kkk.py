@@ -47,9 +47,18 @@ def guardar_en_csv(temperaturas, uso_disco, archivo):
     if len(lines) > 100:
         with open(archivo, mode='w', newline='', encoding='utf-8') as file:
             file.writelines(lines[-100:])
+            
+archivo_temp = "temp.txt"
+archivo_csv = "datos_temperaturas.csv"
 
-archivo_temp = "/home/jose-malo-77/Escritorio/Programas/temp.txt"
-archivo_csv = "/home/jose-malo-77/Escritorio/Programas/datos_temperaturas.csv"
+# Crear los archivos si no existen
+if not os.path.exists(archivo_temp):
+    with open(archivo_temp, 'w', encoding='utf-8') as file:
+        pass
+
+if not os.path.exists(archivo_csv):
+    with open(archivo_csv, 'w', encoding='utf-8') as file:
+        pass
 
 while True:
     os.system(f'sensors > {archivo_temp}')
